@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retorno de atendimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#E9EDF0; --surface:#FFFFFF; --ink:#18232D; --muted:#5A6874; --line:#C9D1D8;
+  --field:#F5F7F8; --accent:#1F6FB2; --send:#1E9E57; --send-ink:#FFFFFF;
+  --bubble:#DCF8C6; --bubble-ink:#111B21; --chat:#E5DDD5; --danger:#B3261E;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F161C; --surface:#18222B; --ink:#E6ECF0; --muted:#97A5B1; --line:#2C3A45;
+    --field:#111A21; --accent:#5AA6E6; --send:#25B566; --send-ink:#06140B;
+    --bubble:#005C4B; --bubble-ink:#E9EDEF; --chat:#0B141A; --danger:#F2867E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F161C; --surface:#18222B; --ink:#E6ECF0; --muted:#97A5B1; --line:#2C3A45;
+  --field:#111A21; --accent:#5AA6E6; --send:#25B566; --send-ink:#06140B;
+  --bubble:#005C4B; --bubble-ink:#E9EDEF; --chat:#0B141A; --danger:#F2867E;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.45; -webkit-text-size-adjust:100%;
+}
+main{max-width:640px; margin:0 auto; padding:20px 16px 120px}
+h1{font-size:1.5rem; font-weight:700; margin:4px 0 2px; letter-spacing:-.01em}
+.sub{color:var(--muted); margin:0 0 20px; font-size:.95rem}
+section{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px}
+section h2{font-size:1rem; font-weight:600; margin:0 0 12px}
+label,.lbl{display:block; font-size:.88rem; font-weight:500; color:var(--muted); margin:0 0 4px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+input,textarea{
+  width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--field);
+  border:1px solid var(--line); border-radius:10px; padding:11px 12px; outline:none;
+}
+textarea{min-height:150px; resize:vertical}
+input:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.fixos{margin:0 0 14px; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:.93rem}
+.fixos dt{color:var(--muted)}
+.fixos dd{margin:0; font-weight:500}
+.interv{font-weight:500; margin-bottom:8px}
+.letras{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+.letras button{padding:10px 0; font-weight:600}
+.letras button[aria-pressed="true"]{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); color:var(--accent)}
+textarea.sap{min-height:440px}
+.tools{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+button,.btn{
+  font:inherit; font-size:.92rem; font-weight:500; border-radius:10px; cursor:pointer;
+  padding:9px 12px; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+}
+button:focus-visible,.btn:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.status-pick{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.status-pick button,.apoio{flex-direction:column; padding:10px 6px; font-size:.85rem}
+.status-pick button[aria-pressed="true"],.apoio[aria-pressed="true"]{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); font-weight:600}
+.em{font-size:1.3rem; line-height:1}
+.apoio{flex-direction:row; width:100%; justify-content:flex-start; gap:10px; padding:11px 12px; margin-top:10px; font-size:.92rem}
+.apoio .chk{margin-left:auto; color:var(--muted); font-weight:500}
+.apoio[aria-pressed="true"] .chk{color:var(--accent)}
+
+.chat{background:var(--chat); border-radius:12px; padding:14px 12px; overflow-x:auto}
+.bubble{
+  background:var(--bubble); color:var(--bubble-ink); border-radius:10px 10px 2px 10px;
+  padding:9px 11px; margin-left:auto; max-width:94%; white-space:pre-wrap; word-wrap:break-word;
+  font-size:.93rem; line-height:1.4; box-shadow:0 1px 1px rgba(0,0,0,.12);
+}
+.warn{color:var(--danger); font-size:.85rem; margin:8px 0 0; min-height:1em}
+
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:5;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+}
+.bar-in{max-width:640px; margin:0 auto; display:grid; grid-template-columns:auto auto 1fr; gap:8px}
+.send{background:var(--send); color:var(--send-ink); border-color:transparent; font-weight:600; font-size:1rem; padding:13px}
+.send[aria-disabled="true"]{opacity:.45; pointer-events:none}
+.copy{padding:13px 14px}
+
+.hist-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line)}
+.hist-item:first-of-type{border-top:0}
+.hist-item .t{font-weight:500; font-size:.93rem}
+.hist-item .d{color:var(--muted); font-size:.8rem}
+.empty{color:var(--muted); font-size:.9rem; margin:0}
+.toast{
+  position:fixed; left:50%; bottom:calc(90px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%) translateY(10px);
+  background:var(--ink); color:var(--bg); padding:9px 14px; border-radius:20px; font-size:.9rem;
+  opacity:0; transition:opacity .2s, transform .2s; pointer-events:none; z-index:10;
+}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+.modal{position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; padding:16px}
+.modal[hidden]{display:none}
+.sheet{background:var(--surface); color:var(--ink); border-radius:16px; padding:20px; width:100%; max-width:420px; text-align:center}
+.sheet h2{margin:0 0 4px; font-size:1.15rem}
+.sheet .sub{margin:0 0 14px}
+#qr-box{background:#fff; color:#000; border-radius:10px; padding:8px; margin:0 auto 14px; max-width:340px}
+#qr-box svg{display:block; width:100%; height:auto}
+.sheet button{width:100%; padding:12px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Retorno de atendimento</h1>
+  <p class="sub">Preencha, confira a prévia e envie no grupo.</p>
+
+  <section aria-labelledby="h-sap">
+    <h2 id="h-sap">Modelo para o SAP</h2>
+    <textarea id="sap" class="sap" spellcheck="false" aria-labelledby="h-sap"></textarea>
+    <div class="tools">
+      <button type="button" id="btn-copiar-sap">Copiar modelo</button>
+      <button type="button" id="btn-restaurar-sap">Restaurar modelo</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-id">
+    <h2 id="h-id">Identificação</h2>
+    <div class="field">
+      <span class="lbl" id="lbl-turno">Intervenção</span>
+      <div class="interv">Atendimento emergencial turno letra <strong id="letra-txt">E</strong></div>
+      <div class="letras" role="group" aria-labelledby="lbl-turno">
+        <button type="button" data-letra="A">A</button>
+        <button type="button" data-letra="B">B</button>
+        <button type="button" data-letra="C">C</button>
+        <button type="button" data-letra="D">D</button>
+        <button type="button" data-letra="E">E</button>
+      </div>
+    </div>
+    <dl class="fixos">
+      <dt>Equipe</dt><dd id="fx-equipe"></dd>
+      <dt>Executante</dt><dd id="fx-executante"></dd>
+    </dl>
+    <div class="field">
+      <label for="maquina">Máquina/Área</label>
+      <input id="maquina" list="lista-maquina" placeholder="EVAP 1">
+      <datalist id="lista-maquina"></datalist>
+    </div>
+    <div class="field">
+      <label for="nota">Número da nota</label>
+      <input id="nota" inputmode="numeric" placeholder="4000181592">
+    </div>
+  </section>
+
+  <section aria-labelledby="h-oc">
+    <h2 id="h-oc">Ocorrência</h2>
+    <div class="field">
+      <label for="ocorrencia">Ocorrência</label>
+      <input id="ocorrencia" placeholder="SEQUÊNCIA DE LAVAGEM">
+    </div>
+    <div class="field">
+      <label for="acoes">Ações</label>
+      <textarea id="acoes" placeholder="Cole aqui o texto das ações do SAP"></textarea>
+      <div class="tools">
+        <button type="button" id="btn-limpar-acoes">Limpar ações</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl" id="lbl-status">Status</span>
+      <div class="status-pick" role="group" aria-labelledby="lbl-status">
+        <button type="button" data-status="concluido" aria-pressed="true"><span class="em">🟩</span>Concluído</button>
+        <button type="button" data-status="execucao" aria-pressed="false"><span class="em">🟨</span>Em execução</button>
+        <button type="button" data-status="pendente" aria-pressed="false"><span class="em">🟥</span>Pendente</button>
+      </div>
+      <button type="button" class="apoio" id="btn-apoio" aria-pressed="false"><span class="em">🟧</span>Houve apoio<span class="chk" id="apoio-chk">Não</span></button>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-prev">
+    <h2 id="h-prev">Prévia da mensagem</h2>
+    <div class="chat"><div class="bubble" id="preview"></div></div>
+    <p class="warn" id="warn"></p>
+  </section>
+
+  <section aria-labelledby="h-hist">
+    <h2 id="h-hist">Últimos envios</h2>
+    <div id="hist"></div>
+    <div class="tools"><button type="button" id="btn-novo">Novo retorno</button></div>
+  </section>
+</main>
+
+<div class="bar">
+  <div class="bar-in">
+    <button type="button" class="copy" id="btn-copiar">Copiar</button>
+    <button type="button" class="copy" id="btn-qr">QR Code</button>
+    <a class="btn send" id="btn-enviar" href="#" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="qr-modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+    <h2 id="qr-title">Escaneie com o iPhone</h2>
+    <p class="sub">Abra a câmera, aponte para o código e toque no aviso do WhatsApp.</p>
+    <div id="qr-box"></div>
+    <button type="button" id="btn-fechar-qr">Fechar</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var INTERV_BASE = "Atendimento emergencial turno letra ";
+  var letra = "E";
+  var FIXO = {
+    equipe: "Automação turno",
+    executante: "Bryan"
+  };
+  var STATUS = {
+    concluido:{em:"🟩", txt:"Concluído"},
+    execucao:{em:"🟨", txt:"Em execução"},
+    pendente:{em:"🟥", txt:"Pendente"}
+  };
+  var APOIO = {em:"🟧", txt:"Apoio"};
+  var KEY = "retorno-atendimento-v1";
+  var ids = ["maquina","nota","ocorrencia","acoes"];
+  var el = {}; ids.forEach(function(i){ el[i] = document.getElementById(i); });
+  var status = "concluido";
+  var apoio = false;
+
+  Object.keys(FIXO).forEach(function(k){ document.getElementById("fx-" + k).textContent = FIXO[k]; });
+
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; }
+  }
+  function save(data){
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){}
+  }
+  var store = load();
+  store.historico = store.historico || [];
+  store.fixos = store.fixos || {};
+  if (/^[A-E]$/.test(store.fixos.letra)) letra = store.fixos.letra;
+
+  if (store.rascunho){
+    ids.forEach(function(i){ if (store.rascunho[i] != null) el[i].value = store.rascunho[i]; });
+    if (STATUS[store.rascunho.status]) status = store.rascunho.status;
+    apoio = !!store.rascunho.apoio;
+  } else if (store.fixos.maquina){
+    el.maquina.value = store.fixos.maquina;
+  }
+
+  function v(i){ return el[i].value.trim(); }
+
+  function montar(){
+    var s = STATUS[status];
+    var linhas = [
+      "Intervenção: " + INTERV_BASE + letra,
+      "Máquina/Área: " + v("maquina"),
+      "Equipe: " + FIXO.equipe,
+      "Executante: " + FIXO.executante,
+      "Número da nota: " + v("nota"),
+      "",
+      "🟩 Ocorrência: " + v("ocorrencia"),
+      "",
+      "Ações: " + v("acoes"),
+      "",
+      "Status / legenda"
+    ];
+    if (apoio) linhas.push(APOIO.em + " " + APOIO.txt);
+    linhas.push(s.em + " " + s.txt);
+    return linhas.join("\n");
+  }
+
+  var faltando = [];
+  function atualizar(){
+    var msg = montar();
+    document.getElementById("preview").textContent = msg;
+    var nomes = {maquina:"Máquina/Área", nota:"Número da nota", ocorrencia:"Ocorrência", acoes:"Ações"};
+    faltando = Object.keys(nomes).filter(function(i){ return !v(i); }).map(function(i){ return nomes[i]; });
+    document.getElementById("warn").textContent = faltando.length ? "Falta preencher: " + faltando.join(", ") + "." : "";
+    var a = document.getElementById("btn-enviar");
+    a.href = "https://wa.me/?text=" + encodeURIComponent(msg);
+    a.setAttribute("aria-disabled", faltando.length ? "true" : "false");
+    var r = {}; ids.forEach(function(i){ r[i] = el[i].value; }); r.status = status; r.apoio = apoio;
+    store.rascunho = r; save(store);
+  }
+
+  function marcarStatus(){
+    document.querySelectorAll("[data-status]").forEach(function(b){
+      b.setAttribute("aria-pressed", b.getAttribute("data-status") === status ? "true" : "false");
+    });
+    document.getElementById("btn-apoio").setAttribute("aria-pressed", apoio ? "true" : "false");
+    document.getElementById("apoio-chk").textContent = apoio ? "Sim" : "Não";
+  }
+
+  ids.forEach(function(i){ el[i].addEventListener("input", atualizar); });
+  document.querySelectorAll("[data-status]").forEach(function(b){
+    b.addEventListener("click", function(){ status = b.getAttribute("data-status"); marcarStatus(); atualizar(); });
+  });
+  document.getElementById("btn-apoio").addEventListener("click", function(){ apoio = !apoio; marcarStatus(); atualizar(); });
+
+  function toast(t){
+    var x = document.getElementById("toast"); x.textContent = t; x.classList.add("on");
+    clearTimeout(toast._t); toast._t = setTimeout(function(){ x.classList.remove("on"); }, 1800);
+  }
+
+  document.getElementById("btn-limpar-acoes").addEventListener("click", function(){ el.acoes.value = ""; atualizar(); el.acoes.focus(); });
+
+  function copiar(texto){
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(texto);
+    }
+    return new Promise(function(res, rej){
+      var t = document.createElement("textarea"); t.value = texto; t.setAttribute("readonly","");
+      t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy") ? res() : rej(); } catch(e){ rej(e); }
+      document.body.removeChild(t);
+    });
+  }
+  document.getElementById("btn-copiar").addEventListener("click", function(){
+    copiar(montar()).then(function(){ toast("Mensagem copiada"); }).catch(function(){ toast("Não foi possível copiar"); });
+  });
+
+  function lembrarSugestao(campo, valor){
+    if (!valor) return;
+    var k = "sug_" + campo; store[k] = store[k] || [];
+    store[k] = [valor].concat(store[k].filter(function(x){ return x !== valor; })).slice(0, 10);
+  }
+  function preencherSugestoes(){
+    var dl = document.getElementById("lista-maquina"); dl.innerHTML = "";
+    (store.sug_maquina || []).forEach(function(s){ var o = document.createElement("option"); o.value = s; dl.appendChild(o); });
+  }
+
+  function registrar(){
+    store.fixos.maquina = v("maquina");
+    lembrarSugestao("maquina", v("maquina"));
+    var r = {}; ids.forEach(function(i){ r[i] = el[i].value; }); r.status = status; r.apoio = apoio; r.quando = Date.now();
+    var topo = store.historico[0];
+    var igual = topo && ids.every(function(i){ return (topo[i] || "") === r[i]; }) && topo.status === r.status && !!topo.apoio === r.apoio;
+    store.historico = (igual ? [r].concat(store.historico.slice(1)) : [r].concat(store.historico)).slice(0, 20);
+    save(store); preencherSugestoes(); renderHist();
+  }
+  document.getElementById("btn-enviar").addEventListener("click", function(){
+    if (faltando.length) return;
+    registrar();
+  });
+
+  var modal = document.getElementById("qr-modal");
+  function fecharQR(){ modal.hidden = true; document.getElementById("btn-qr").focus(); }
+  document.getElementById("btn-qr").addEventListener("click", function(){
+    if (faltando.length){ toast("Preencha os campos que faltam"); return; }
+    var box = document.getElementById("qr-box"); box.innerHTML = "";
+    var url = "https://wa.me/?text=" + encodeURIComponent(montar());
+    if (typeof qrcode !== "function"){
+      box.textContent = "Não foi possível carregar o gerador de QR Code. Verifique a internet e recarregue a página.";
+    } else {
+      try {
+        var qr = qrcode(0, "L"); qr.addData(url, "Byte"); qr.make();
+        box.innerHTML = qr.createSvgTag({cellSize:4, margin:4, scalable:true});
+        registrar();
+      } catch(e){
+        box.textContent = "O texto ficou longo demais para um QR Code. Encurte as ações ou use o botão Copiar.";
+      }
+    }
+    modal.hidden = false; document.getElementById("btn-fechar-qr").focus();
+  });
+  document.getElementById("btn-fechar-qr").addEventListener("click", fecharQR);
+  modal.addEventListener("click", function(e){ if (e.target === modal) fecharQR(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !modal.hidden) fecharQR(); });
+
+  function novo(){
+    ["nota","ocorrencia","acoes"].forEach(function(i){ el[i].value = ""; });
+    status = "concluido"; apoio = false; marcarStatus(); atualizar();
+    window.scrollTo({top:0, behavior:"smooth"}); el.nota.focus({preventScroll:true});
+  }
+  document.getElementById("btn-novo").addEventListener("click", novo);
+
+  function renderHist(){
+    var box = document.getElementById("hist"); box.innerHTML = "";
+    if (!store.historico.length){
+      var p = document.createElement("p"); p.className = "empty";
+      p.textContent = "Os retornos enviados aparecem aqui para reabrir e reenviar.";
+      box.appendChild(p); return;
+    }
+    store.historico.forEach(function(h){
+      var d = document.createElement("div"); d.className = "hist-item";
+      var info = document.createElement("div");
+      var t = document.createElement("div"); t.className = "t";
+      var ems = (h.apoio ? APOIO.em : "") + (STATUS[h.status] ? STATUS[h.status].em : "");
+      t.textContent = (ems ? ems + " " : "") + (h.ocorrencia || "Sem ocorrência") + (h.maquina ? " – " + h.maquina : "");
+      var dd = document.createElement("div"); dd.className = "d";
+      var dt = new Date(h.quando);
+      dd.textContent = "Nota " + (h.nota || "–") + ", " + dt.toLocaleDateString("pt-BR") + " às " + dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+      info.appendChild(t); info.appendChild(dd);
+      var b = document.createElement("button"); b.type = "button"; b.textContent = "Abrir";
+      b.addEventListener("click", function(){
+        ids.forEach(function(i){ el[i].value = h[i] || ""; });
+        status = STATUS[h.status] ? h.status : "concluido"; apoio = !!h.apoio; marcarStatus(); atualizar();
+        window.scrollTo({top:0, behavior:"smooth"}); toast("Retorno carregado");
+      });
+      d.appendChild(info); d.appendChild(b); box.appendChild(d);
+    });
+  }
+
+  function marcarLetra(){
+    document.getElementById("letra-txt").textContent = letra;
+    document.querySelectorAll("[data-letra]").forEach(function(b){
+      b.setAttribute("aria-pressed", b.getAttribute("data-letra") === letra ? "true" : "false");
+    });
+  }
+  document.querySelectorAll("[data-letra]").forEach(function(b){
+    b.addEventListener("click", function(){
+      letra = b.getAttribute("data-letra"); store.fixos.letra = letra; marcarLetra(); atualizar();
+    });
+  });
+
+  var MODELO_SAP = [
+    "ÁREA: ",
+    "OCORRÊNCIA: ",
+    "AÇÃO: ",
+    "FALTA DE SOBRESSALENTE: N/A",
+    "FALTA DE INFORMAÇÕES NA LISTA TÉCNICA: N/A",
+    "FALTA DE RECURSO: N/A",
+    "FALTA DE APOIO OPERACIONAL: N/A",
+    "EQUIPAMENTO INSTALADO NÃO PERMITE REPARO: N/A",
+    "== MOVIMENTAÇÃO DE EQUIPAMENTOS ==",
+    "SAIU: N/A",
+    "NOTA M9: N/A",
+    "NOTA M1: N/A",
+    "NOTA MC: N/A",
+    "EXECUTANTE: BRYAN",
+    "STATUS: CONCLUÍDO"
+  ].join("\n");
+  var sap = document.getElementById("sap");
+  sap.value = (typeof store.sap === "string" && store.sap) ? store.sap : MODELO_SAP;
+  sap.addEventListener("input", function(){ store.sap = sap.value; save(store); });
+  document.getElementById("btn-copiar-sap").addEventListener("click", function(){
+    copiar(sap.value).then(function(){ toast("Modelo copiado"); }).catch(function(){ toast("Não foi possível copiar"); });
+  });
+  document.getElementById("btn-restaurar-sap").addEventListener("click", function(){
+    sap.value = MODELO_SAP; store.sap = MODELO_SAP; save(store); toast("Modelo restaurado");
+  });
+
+  marcarLetra(); marcarStatus(); preencherSugestoes(); renderHist(); atualizar();
+})();
+</script>
+</body>
+</html>
